@@ -34,4 +34,6 @@ public interface OrderService  {
     * */
     Boolean updateById(OrderEntity orderEntity);
 
+    Object getById(String id);
+
 }

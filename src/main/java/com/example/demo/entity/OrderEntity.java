@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="tb_order")
-public class OrderEntity{
+public class OrderEntity implements Serializable{
 
     @Id
     @GeneratedValue(generator = "system-uuid")

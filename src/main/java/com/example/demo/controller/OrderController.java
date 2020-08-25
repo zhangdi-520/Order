@@ -33,10 +33,17 @@ public class OrderController {
         return ResponseResult.e(ResponseCode.ERROR,orderEntity.toString(),null);
     }
 
+
     @GetMapping("/findAll")
     public ResponseResult findAllOrder(){
         List<OrderEntity> orderEntityList = orderService.findAllOrder();
         return ResponseResult.e(ResponseCode.OK_FIND,null,orderEntityList);
+    }
+
+    @GetMapping("/getById")
+    public ResponseResult getById(@RequestParam("id")String id){
+        Object orderEntity = orderService.getById(id);
+        return ResponseResult.e(ResponseCode.OK_FIND,null,orderEntity);
     }
 
     @GetMapping("/delete")

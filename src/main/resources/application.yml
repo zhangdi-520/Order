@@ -2,6 +2,9 @@ server:
   port: 8081
 
 spring:
+  aop:
+    proxy-target-class: true
+    auto: true
   cache:
     redis:
       use-key-prefix: true

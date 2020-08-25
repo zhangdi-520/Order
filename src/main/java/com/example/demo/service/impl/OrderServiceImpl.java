@@ -1,12 +1,12 @@
 package com.example.demo.service.impl;
 
 import com.alibaba.druid.util.StringUtils;
+import com.example.demo.annotation.Cacheable;
 import com.example.demo.entity.OrderEntity;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @CacheEvict(value="order",allEntries=true)
+//    @CacheEvict(value="order",allEntries=true)
+    @com.example.demo.annotation.CacheEvict(group = "getById")
     public Boolean insertOrder(OrderEntity orderEntity) {
         OrderEntity order = orderRepository.save(orderEntity);
         if(order!=null){
@@ -38,7 +39,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Cacheable(value = {"order"},key = "#root.method.name",sync = true)
     public List<OrderEntity> findAllOrder() {
         List<OrderEntity> all = orderRepository.findAll();
         return all;
@@ -46,14 +46,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @CacheEvict(value="order",allEntries=true)
+//    @CacheEvict(value="order",allEntries=true)
+    @com.example.demo.annotation.CacheEvict(group = "getById")
     public void deleteById(String id) {
         orderRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value="order",allEntries=true)
+//    @CacheEvict(value="order",allEntries=true)
+    @com.example.demo.annotation.CacheEvict(group = "getById")
     public Boolean updateById(OrderEntity orderEntity) {
         Optional<OrderEntity> order = orderRepository.findById(orderEntity.getUuid());
         if (order.isPresent()){
@@ -87,6 +89,17 @@ public class OrderServiceImpl implements OrderService {
         }else{
             Boolean aBoolean = insertOrder(orderEntity);
             return aBoolean;
+        }
+    }
+
+    @Override
+    @Cacheable(group = "getById",name="methodName")
+    public Object getById(String id) {
+        Optional<OrderEntity> byId = orderRepository.findById(id);
+        if (byId.isPresent()){
+            return byId.get();
+        }else{
+            return null;
         }
     }
 }
