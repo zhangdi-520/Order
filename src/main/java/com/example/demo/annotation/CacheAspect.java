@@ -39,11 +39,14 @@ public class CacheAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         Cacheable annotation = method.getAnnotation(Cacheable.class);
+
+        // LH comment: 读缓存不需要redis加锁
         RLock lock = redissonClient.getLock("cache");
         lock.lock();
         try {
             Object orderEntity = null;
             if ("methodName".equals(annotation.name())) {
+                // LH comment: 对缓存key的处理思考的不够
                 orderEntity = redisTemplate.opsForHash().get(annotation.group(), method.getParameters()[0].toString());
             }else {
                 orderEntity = redisTemplate.opsForHash().get(annotation.group(), annotation.name());
@@ -53,6 +56,7 @@ public class CacheAspect {
             }else{
                 OrderEntity proceed = (OrderEntity)joinPoint.proceed();
                 if ("methodName".equals(annotation.name())) {
+                    // LH comment: toString() 这里是不合适的，空处理呢？
                     redisTemplate.opsForHash().put(annotation.group(), method.getParameters()[0].toString(),proceed.toString());
                 }else{
                     redisTemplate.opsForHash().put(annotation.group(), annotation.name(),proceed.toString());
@@ -76,6 +80,7 @@ public class CacheAspect {
         RLock lock = redissonClient.getLock("RealseCache");
         lock.lock();
         try {
+            // LH comment: 需要考虑根据参数来删除
             redisTemplate.delete(annotation.group());
             return (Boolean) joinPoint.proceed();
         } catch (Throwable throwable) {

@@ -29,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
 //    @CacheEvict(value="order",allEntries=true)
+    // LH comment: 插入为什么要删除缓存呢？
     @com.example.demo.annotation.CacheEvict(group = "getById")
     public Boolean insertOrder(OrderEntity orderEntity) {
         OrderEntity order = orderRepository.save(orderEntity);
@@ -47,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
 //    @CacheEvict(value="order",allEntries=true)
+    // LH comment: 删除缓存的时候会清除所有，合适吗？
     @com.example.demo.annotation.CacheEvict(group = "getById")
     public void deleteById(String id) {
         orderRepository.deleteById(id);
@@ -55,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
 //    @CacheEvict(value="order",allEntries=true)
+    // LH comment: 更新数据为什么要删除缓存，为什么不更新缓存呢
     @com.example.demo.annotation.CacheEvict(group = "getById")
     public Boolean updateById(OrderEntity orderEntity) {
         Optional<OrderEntity> order = orderRepository.findById(orderEntity.getUuid());
@@ -75,6 +78,8 @@ public class OrderServiceImpl implements OrderService {
             if (!StringUtils.equals(orderEntity.getUpdateUser(),orderEntity1.getUpdateUser())) {
                 orderEntity1.setUpdateUser(orderEntity.getUpdateUser());
             }
+
+            // LH comment: 下面这几行用 == 、compareTo是不合适的
             if(!(orderEntity.getAmount()==orderEntity1.getAmount())){
                 orderEntity1.setAmount(orderEntity.getAmount());
             }
@@ -99,6 +104,7 @@ public class OrderServiceImpl implements OrderService {
         if (byId.isPresent()){
             return byId.get();
         }else{
+            // LH comment: 这里可能返回null，缓存的处理对空的处理是有问题的
             return null;
         }
     }
