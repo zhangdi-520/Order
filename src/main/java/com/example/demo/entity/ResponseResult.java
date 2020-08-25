@@ -30,9 +30,12 @@ public class ResponseResult<T> implements Serializable {
 
     private T data;
 
+    // LH comment: 该方法无需加锁
     public synchronized static <T> ResponseResult<T> e(ResponseCode status,String args,T data){
+        // LH comment: 下面这行声明为static更为合适
         List<String> strings = Arrays.asList("10000", "10001", "10002", "10003");
         ResponseResult<T> res = new ResponseResult<>();
+        // LH comment: List做contains效率不如Set
         if(strings.contains(status.getCode())){
             res.setSuccess(true);
         }else{
